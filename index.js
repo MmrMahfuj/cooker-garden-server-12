@@ -11,8 +11,8 @@ const ObjectId = require('mongodb').ObjectId;
 
 const port = process.env.PORT || 5000;
 
-var serviceAccount = require('./cooker-garden-firebase-adminsdk.json');
-// const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+// var serviceAccount = require('./cooker-garden-firebase-adminsdk.json');
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 
 
@@ -168,3 +168,6 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`listening at port ${port}`)
 })
+
+
+// git push heroku main
