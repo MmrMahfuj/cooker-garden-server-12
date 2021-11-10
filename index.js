@@ -11,8 +11,8 @@ const ObjectId = require('mongodb').ObjectId;
 
 const port = process.env.PORT || 5000;
 
-// var serviceAccount = require('./cooker-garden-firebase-adminsdk.json');
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+const serviceAccount = require('./cooker-garden-firebase-adminsdk.json');
+// const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 
 
@@ -38,7 +38,7 @@ async function verifyToken(req, res, next) {
     // console.log(req.headers.authorization);
     if (req.headers?.authorization?.startsWith('Bearer ')) {
         const token = req.headers.authorization.split(' ')[1];
-        console.log(token);
+        // console.log(token);
         try {
             const decodedUser = await admin.auth().verifyIdToken(token);
             req.decodedEmail = decodedUser.email;
@@ -57,6 +57,8 @@ async function run() {
         const database = client.db('cooker_garden');
         const usersCollection = database.collection('users')
         const productsCollection = database.collection('products')
+        const reviewsCollection = database.collection('reviews')
+        const ordersCollection = database.collection('orders')
         /* 
                 // GET API Appointment
                 app.get('/appointment', verifyToken, async (req, res) => {
@@ -70,6 +72,17 @@ async function run() {
                     
                 }) */
 
+
+        // POST API Order
+        app.post('/orders', async (req, res) => {
+            const product = req.body;
+            const result = await ordersCollection.insertOne(product);
+            res.json(result)
+        });
+
+
+
+        /*------------- PRODUCT API START ---------------*/
         // GET API all products
         app.get('/allProducts', async (req, res) => {
             const cursor = productsCollection.find({});
@@ -77,13 +90,14 @@ async function run() {
             res.json(products);
         })
 
-        // DELETE Product admin and customer
-        app.delete('/deleteProduct/:id', async (req, res) => {
+
+        //GET Single Product API
+        app.get('/singleProduct/:id', async (req, res) => {
+            // console.log("thi the id");
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const result = await travelPlaceCollection.deleteOne(query);
-            console.log(result);
-            res.json(result);
+            const product = await productsCollection.findOne(query)
+            res.json(product);
         })
 
 
@@ -94,9 +108,28 @@ async function run() {
             res.json(result)
         });
 
+        // DELETE Product admin and customer
+        app.delete('/deleteProduct/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await productsCollection.deleteOne(query);
+            // console.log(result);
+            res.json(result);
+        })
+
+        /*--------------------------- REVIEWS API START ------------------------*/
+        //POST API Review
+        app.post('/reviews', async (req, res) => {
+            const review = req.body;
+            console.log(review);
+            const result = await reviewsCollection.insertOne(review);
+            console.log(result);
+            res.json(result)
+        })
+
+
+
         /*------------------ users and admin API start----------------- */
-
-
         // POST API users
         app.post('/users', async (req, res) => {
             const user = req.body;
@@ -132,7 +165,9 @@ async function run() {
         // Make an Admin 
         app.put('/users/admin', verifyToken, async (req, res) => {
             const user = req.body
+            // console.log(user);
             const requester = req.decodedEmail
+            // console.log(requester);
             if (requester) {
                 const requesterAccount = await usersCollection.findOne({ email: requester });
                 if (requesterAccount.role === 'admin') {
@@ -142,6 +177,7 @@ async function run() {
                     };
                     const result = await usersCollection.updateOne(filter, updateDoc);
                     res.json(result)
+                    console.log(result);
                 }
             }
             else {
