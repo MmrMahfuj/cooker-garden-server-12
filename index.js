@@ -11,8 +11,8 @@ const ObjectId = require('mongodb').ObjectId;
 
 const port = process.env.PORT || 5000;
 
-const serviceAccount = require('./cooker-garden-firebase-adminsdk.json');
-// const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+// const serviceAccount = require('./cooker-garden-firebase-adminsdk.json');
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 
 
