@@ -73,13 +73,45 @@ async function run() {
                 }) */
 
 
-        // POST API Order
+        // POST API Orders
         app.post('/orders', async (req, res) => {
             const product = req.body;
             const result = await ordersCollection.insertOne(product);
             res.json(result)
         });
 
+        // GET API Orders
+        app.get('/orders', async (req, res) => {
+            const cursor = ordersCollection.find({});
+            const orders = await cursor.toArray();
+            res.json(orders);
+        })
+
+        // PUT API Orders Status Update 
+        app.put('/ordersStatus/:id', async (req, res) => {
+            const id = req.params.id;
+            const updateStatus = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    status: updateStatus.status,
+                },
+            };
+            const result = await ordersCollection.updateOne(filter, updateDoc, options)
+
+            res.json(result);
+        })
+
+
+        //DELETE API Orders
+        app.delete('/deleteOrders/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await ordersCollection.deleteOne(query);
+            // console.log(result);
+            res.json(result);
+        })
 
 
         /*------------- PRODUCT API START ---------------*/
@@ -125,6 +157,13 @@ async function run() {
             const result = await reviewsCollection.insertOne(review);
             console.log(result);
             res.json(result)
+        })
+
+        // GET API Review
+        app.get('/reviews', async (req, res) => {
+            const cursor = reviewsCollection.find({});
+            const review = await cursor.toArray();
+            res.json(review);
         })
 
 
