@@ -11,6 +11,10 @@ const ObjectId = require('mongodb').ObjectId;
 
 const port = process.env.PORT || 5000;
 
+/* 
+   NOTE:  vs code kono ak ojana karone env file theke FIREBASE_SERVICE_ACCOUNT kaj kore nah. bishal boro akta error dey, but heroku te deploy korle env file kaj kore
+*/
+
 // const serviceAccount = require('./cooker-garden-firebase-adminsdk.json');
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
@@ -59,18 +63,17 @@ async function run() {
         const productsCollection = database.collection('products')
         const reviewsCollection = database.collection('reviews')
         const ordersCollection = database.collection('orders')
-        /* 
-                // GET API Appointment
-                app.get('/appointment', verifyToken, async (req, res) => {
-                    const email = req.query.email;
-                    const date = req.query.date;
-        
-                    const query = { email: email, date: date };
-                    const cursor = appointmentCollection.find(query);
-                    const appointment = await cursor.toArray();
-                    res.json(appointment);
-                    
-                }) */
+
+        // GET API My Orders
+        app.get('/myOrders', verifyToken, async (req, res) => {
+            const email = req.query.email;
+            // console.log(email);
+            const query = { email: email };
+            const cursor = ordersCollection.find(query);
+            const orders = await cursor.toArray();
+            res.json(orders);
+
+        })
 
 
         // POST API Orders
